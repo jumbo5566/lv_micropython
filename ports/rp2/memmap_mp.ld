@@ -237,6 +237,13 @@ SECTIONS
     } > FLASH
 
     /* stack limit is poorly named, but historically is maximum heap ptr */
+    __StackLimit = __bss_end__ + __micropy_c_heap_size__;
+
+    /* Define start and end of GC heap */
+    __GcHeapStart = __StackLimit; /* after the C heap (sbrk limit) */
+    __GcHeapEnd = ORIGIN(RAM) + LENGTH(RAM);
+
+    /* stack limit is poorly named, but historically is maximum heap ptr */
     __StackLimit = ORIGIN(RAM) + LENGTH(RAM);
     __StackOneTop = ORIGIN(SCRATCH_X) + LENGTH(SCRATCH_X);
     __StackTop = ORIGIN(SCRATCH_Y) + LENGTH(SCRATCH_Y);
@@ -244,8 +251,9 @@ SECTIONS
     __StackBottom = __StackTop - SIZEOF(.stack_dummy);
     PROVIDE(__stack = __StackTop);
 
-    /* Check if data + heap + stack exceeds RAM limit */
-    ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed")
+    /* Check GC heap is at least 128 KB */
+    /* On a RP2040 using all SRAM this should always be the case. */
+    ASSERT((__GcHeapEnd - __GcHeapStart) > 128*1024, "GcHeap is too small")
 
     ASSERT( __binary_info_header_end - __logical_binary_start <= 256, "Binary info must be in first 256 bytes of the binary")
     /* todo assert on extra code */

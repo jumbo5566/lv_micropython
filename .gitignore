@@ -68,3 +68,5 @@ genrst/
 # MacOS desktop metadata files
 ######################
 .DS_Store
+.cache/
+compile_commands.json

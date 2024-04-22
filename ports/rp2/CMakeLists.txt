@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 3.12)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+if(NOT DISP_BOARD)
+    set(DISP_BOARD "PICO_DM_QD3503728")
+endif()
+set(MICROPY_PY_DISP_PORT_LVGL 1)
+
 # Set build type to reduce firmware size
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE MinSizeRel)
@@ -126,8 +131,6 @@ set(MICROPY_SOURCE_PORT
     mbedtls/mbedtls_port.c
     led.c
     i80.c
-    ili9488.c
-    ft6236.c
 )
 
 set(MICROPY_SOURCE_QSTR
@@ -150,8 +153,6 @@ set(MICROPY_SOURCE_QSTR
     ${PROJECT_SOURCE_DIR}/rp2_flash.c
     ${PROJECT_SOURCE_DIR}/rp2_pio.c
     ${PROJECT_SOURCE_DIR}/led.c
-    ${PROJECT_SOURCE_DIR}/ili9488.c
-    ${PROJECT_SOURCE_DIR}/ft6236.c
 )
 
 set(PICO_SDK_COMPONENTS
@@ -291,6 +292,20 @@ if (MICROPY_PY_NETWORK_WIZNET5K)
 
     string(CONCAT GIT_SUBMODULES "${GIT_SUBMODULES} " lib/wiznet5k)
 endif()
+
+# Include our board porting files here
+if (MICROPY_PY_DISP_PORT_LVGL)
+    set(LVGL_BINDING_DIR ${LVGL_DIR}/..)
+    set(LVGL_RP2_DRV_DIR ${LVGL_BINDING_DIR}/driver/rp2)
+    set(BOARD_DIR ${LVGL_RP2_DRV_DIR}/${DISP_BOARD})
+    include(${BOARD_DIR}/board.cmake)
+
+    file(GLOB_RECURSE BOARD_FILES ${BOARD_DIR}/*.c)
+    list(APPEND MICROPY_SOURCE_EXTMOD
+        ${BOARD_FILES}
+    )
+endif()
+
 
 # Add qstr sources for extmod and usermod, in case they are modified by components above.
 list(APPEND MICROPY_SOURCE_QSTR

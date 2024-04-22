@@ -9,6 +9,7 @@ BUILD ?= build-$(BOARD)
 $(VERBOSE)MAKESILENT = -s
 
 CMAKE_ARGS = -DMICROPY_BOARD=$(BOARD)
+CMAKE_ARGS = -DDISP_BOARD=$(DISP_BOARD)
 
 ifdef USER_C_MODULES
 CMAKE_ARGS += -DUSER_C_MODULES=${USER_C_MODULES}
@@ -22,8 +23,9 @@ ifeq ($(DEBUG),1)
 CMAKE_ARGS += -DCMAKE_BUILD_TYPE=Debug
 endif
 
+# [ -e $(BUILD)/CMakeCache.txt ] || cmake -S . -B $(BUILD) -DPICO_BUILD_DOCS=0 ${CMAKE_ARGS}
 all:
-	[ -e $(BUILD)/CMakeCache.txt ] || cmake -S . -B $(BUILD) -DPICO_BUILD_DOCS=0 ${CMAKE_ARGS}
+	cmake -S . -B $(BUILD) -DPICO_BUILD_DOCS=0 ${CMAKE_ARGS}
 	$(MAKE) $(MAKESILENT) -C $(BUILD)
 
 clean:

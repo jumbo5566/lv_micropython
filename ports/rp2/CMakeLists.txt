@@ -130,7 +130,6 @@ set(MICROPY_SOURCE_PORT
     msc_disk.c
     mbedtls/mbedtls_port.c
     led.c
-    i80.c
 )
 
 set(MICROPY_SOURCE_QSTR
